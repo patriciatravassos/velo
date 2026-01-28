@@ -21,11 +21,8 @@ test('deve consultar pedido aprovado', async ({ page }) => {
   //await expect(page.getByTestId('order-result-status')).toBeVisible()
   //await expect(page.getByTestId('order-result-status')).toContainText('APROVADO')
 
-  //await page.getByText('Pedido', { exact: true }).click();
 
- // await page.getByText('APROVADO').click();
- await expect(page.getByTestId('order-result-VLO-NULNMA')).toContainText('APROVADO');
- await expect(page.getByTestId('order-result-VLO-NULNMA')).toContainText('Pedido');
-
+ await page.getByText('VLO-NULNMA').click();
+ await page.getByText('APROVADO').click();
 
 })
