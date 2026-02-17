@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test'
 import { gerarCodigoPedido } from '../support/helpers'
+import { OrderLockupPage } from '../support/pages/OrderLockupPage'
+
 
 // AAA - Arrange, Act, Assert
 test.describe('Consulta do Pedido', () => {
@@ -21,7 +23,7 @@ test('deve consultar pedido aprovado', async ({ page }) => {
 
     const order= {
       number: 'VLO-NULNMA',
-      status: 'APROVADO',
+      status: 'APROVADO' as const,
       color: 'Lunar White',
       wheels: 'aero Wheels',
       customer: {
@@ -34,29 +36,10 @@ test('deve consultar pedido aprovado', async ({ page }) => {
   
   // Act
 
-  await page.getByRole('textbox', { name: 'Número do Pedido' }).fill(order.number)
-  //await page.getByTestId('search-order-button').click() 
-  await page.getByRole('button', { name: 'Buscar Pedido' }).click()
-
-  // Assert
-  //await expect(page.getByTestId('order-result-id')).toBeVisible({ timeout: 10000 })
- // await expect(page.getByTestId('order-result-id')).toContainText('VLO-NULNMA')
-
-  //await expect(page.getByTestId('order-result-status')).toBeVisible()
-  //await expect(page.getByTestId('order-result-status')).toContainText('APROVADO')
-  
-//const orderCode = page.locator('//p[text()="Pedido"]/..//p[text()="VLO-NULNMA"]') //xPath
-
-// await expect(orderCode).toBeVisible({timeout: 10_000}) //resolução com codegen
- //await expect(page.getByText('APROVADO')).toBeVisible()
+  const orderLockupPage = new OrderLockupPage(page)
+  await orderLockupPage.searchOrder(order.number)
 
  //Assert
- //const containerPedido = page.getByRole('paragraph')
-   // .filter({ hasText: /^Pedido$/ }) // /^xxx$/ expressão regular - significa que o primeiro tem ser x e o íltimo tem que ser x
-    //.locator('..') //Sobe para o elemento pai (div que agrupa ambos)
-
-    //await expect(containerPedido).toContainText(order , { timeout: 10_000})
-    //await expect(page.getByText('APROVADO')).toBeVisible()
 
     await expect(page.getByTestId(`order-result-${order.number}`)).toMatchAriaSnapshot(`
       - img
@@ -88,15 +71,11 @@ test('deve consultar pedido aprovado', async ({ page }) => {
       - paragraph: /R\\$ \\d+\\.\\d+,\\d+/
       `);
 
-      const statusBadge = page.getByRole('status').filter({ hasText: order.status })
-      await expect(statusBadge).toHaveClass(/bg-green-100/)
-      await expect(statusBadge).toHaveClass(/text-green-700/)
+       // Validação do badge de status encapsulada no Page Object
+       await orderLockupPage.validateStatusBadge(order.status)
 
-      const statusIcon = statusBadge.locator('svg')
-      await expect(statusIcon).toHaveClass(/lucide-circle-check-big/)
+      })
 
-
-})
 
 
 
@@ -108,7 +87,7 @@ test('deve consultar pedido reprovado', async ({ page }) => {
   //const order = 'VLO-AUT43Q'
   const order= {
     number: 'VLO-AUT43Q',
-    status: 'REPROVADO',
+    status: 'REPROVADO' as const,
     color: 'Midnight Black',
     wheels: 'sport Wheels',
     customer: {
@@ -120,9 +99,9 @@ test('deve consultar pedido reprovado', async ({ page }) => {
 
 // Act
 
-await page.getByRole('textbox', { name: 'Número do Pedido' }).fill(order.number)
-//await page.getByTestId('search-order-button').click() 
-await page.getByRole('button', { name: 'Buscar Pedido' }).click()
+const orderLockupPage = new OrderLockupPage(page)
+
+await orderLockupPage.searchOrder(order.number)
 
 // Assert
 
@@ -157,14 +136,11 @@ await page.getByRole('button', { name: 'Buscar Pedido' }).click()
     - paragraph: /R\\$ \\d+\\.\\d+,\\d+/
     `);
 
-    const statusBadge = page.getByRole('status').filter({ hasText: order.status })
-    await expect(statusBadge).toHaveClass(/bg-red-100/)
-    await expect(statusBadge).toHaveClass(/text-red-700/)
+      // Validação do badge de status encapsulada no Page Object
+      await orderLockupPage.validateStatusBadge(order.status)
 
-    const statusIcon = statusBadge.locator('svg')
-    await expect(statusIcon).toHaveClass(/lucide-circle-x/)
+    })
 
-})
 
 test('deve consultar pedido em analise', async ({ page }) => {
 
@@ -172,7 +148,7 @@ test('deve consultar pedido em analise', async ({ page }) => {
   //const order = 'VLO-AUT43Q'
   const order= {
     number: 'VLO-U93RG5',
-    status: 'EM_ANALISE',
+    status: 'EM_ANALISE' as const,
     color: 'Lunar White',
     wheels: 'aero Wheels',
     customer: {
@@ -184,9 +160,9 @@ test('deve consultar pedido em analise', async ({ page }) => {
 
 // Act
 
-await page.getByRole('textbox', { name: 'Número do Pedido' }).fill(order.number)
-//await page.getByTestId('search-order-button').click() 
-await page.getByRole('button', { name: 'Buscar Pedido' }).click()
+const orderLockupPage = new OrderLockupPage(page)
+
+await orderLockupPage.searchOrder(order.number)
 
 // Assert
 
@@ -221,24 +197,21 @@ await page.getByRole('button', { name: 'Buscar Pedido' }).click()
     - paragraph: /R\\$ \\d+\\.\\d+,\\d+/
     `);
 
-    const statusBadge = page.getByRole('status').filter({ hasText: order.status })
-    await expect(statusBadge).toHaveClass(/bg-amber-100/)
-    await expect(statusBadge).toHaveClass(/text-amber-700/)
+      // Validação do badge de status encapsulada no Page Object
+      await orderLockupPage.validateStatusBadge(order.status)
 
-    const statusIcon = statusBadge.locator('svg')
-    await expect(statusIcon).toHaveClass(/lucide-clock w-4 h-4/)
+    })
 
-})
 
 test('deve exibir mensagem quando o pedido não é encontrado', async ({ page}) => {
   const order =  gerarCodigoPedido()
+  // Act
 
+  const orderLockupPage = new OrderLockupPage(page)
 
-  await page.getByRole('textbox', { name: 'Número do Pedido' }).fill(order)
-  await page.getByRole('button', { name: 'Buscar Pedido' }).click()
+  await orderLockupPage.searchOrder(order)
 
-  //await expect(page.locator('#root')).toContainText('Pedido não encontrado')
- // await expect(page.locator('#root')).toContainText('Verifique o número do pedido e tente novamente')
+  // Assert
   await expect(page.locator('#root')).toMatchAriaSnapshot(`
   - img
   - heading "Pedido não encontrado" [level=3]
